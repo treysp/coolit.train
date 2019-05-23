@@ -1,0 +1,22 @@
+Package: coolit
+Type: Package
+Title: Identify water cooling towers from aerial orthoimagery
+Version: 0.1.0
+Imports:
+    abind,
+    keras,
+    pbapply,
+    raster,
+    sf,
+    stringr,
+    tidyr,
+    xml2,
+    magrittr
+Author: Trey Spiller <treyspiller@gmail.com>
+Maintainer: Trey Spiller <treyspiller@gmail.com>
+Description: More about what it does (maybe more than one line)
+    Use four spaces when indenting paragraphs within the Description.
+License: Apache License (>= 2.0)
+Encoding: UTF-8
+LazyData: true
+RoxygenNote: 6.1.1

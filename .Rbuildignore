@@ -1,0 +1,7 @@
+^LICENSE\.md$
+^CODE_OF_CONDUCT\.md$
+^.*\.Rproj$
+^\.Rproj\.user$
+^analysis$
+^data$
+^output$

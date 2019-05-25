@@ -6,39 +6,25 @@ my_bbox_poly <- st_zm(
 
 my_bbox <- st_bbox(my_bbox_poly)
 
-my_bbox_poly <- st_transform(my_bbox_poly, 3857)
 
-# google maps tile zoom conversion to meters
-# https://groups.google.com/forum/#!topic/google-maps-js-api-v3/hDRO4oHVSeM
-#
-# 156543.03392 * Math.cos(latLng.lat() * Math.PI / 180) / Math.pow(2, zoom)
-
-calc_mt_per_px <- function(lat, zoom) {
+zoom_resolution_meters <- function(lat, zoom) {
   156543.03392 * cos(lat * pi / 180) / (2 ^ zoom)
 }
 
-img_resolution <- calc_mt_per_px(
-  my_bbox[["ymin"]] + ((my_bbox[["ymax"]] - my_bbox[["ymin"]]) / 2),
-  20
-  )
+# steps
+#  - convert top corner from lat/long to meters
+#  - add 5000 * res in [x, y] directions to calculate corners in meters
+#  - convert corners back to lat/long
+my_res <- zoom_resolution_meters(my_bbox[["ymax"]], 20)
+my_box_size <- my_res * 5000
 
-grid_sq_size_mt <- img_resolution * 5000
+my_bbox_poly_meters <- st_transform(my_bbox_poly, 900913)
 
-# grid_sq_size_lat <- optimize(interval = c(0.006, 0.007),
-#          f = function(x) {
-#   out <- geosphere::distGeo(
-#     c(my_bbox[["xmin"]], my_bbox[["ymin"]]),
-#     c(my_bbox[["xmin"]] + x, my_bbox[["ymin"]])
-#   )
-#
-#   grid_sq_size - out
-# })$minimum
+my_grid <- st_make_grid(my_bbox_poly_meters, cellsize = my_box_size)
 
-my_grid <- st_make_grid(my_bbox_poly, cellsize = grid_sq_size_lat)
+my_grid_lonlat <- st_transform(my_grid, 4326)
 
-my_grid <- st_transform(my_grid, 4326)
-
-my_grid_bbox <- lapply(my_grid, function(x) {
+my_grid_bbox <- lapply(my_grid_lonlat, function(x) {
   box <- st_bbox(x)
 
   box <- c(box[["ymin"]], box[["xmin"]], box[["ymax"]], box[["xmax"]])
@@ -46,18 +32,29 @@ my_grid_bbox <- lapply(my_grid, function(x) {
   paste0(box, collapse = ",")
   })
 
-my_grid_coord <- st_coordinates(my_grid)
+names(my_grid_bbox) <- seq_along(my_grid_bbox)
 
-my_grid_coord <- split(data.frame(my_grid_coord[, c("X", "Y")]), my_grid_coord[, "L2"])
+saveRDS(my_grid_bbox,
+        "data/source_from-nj-nearmap-website/nj-nearmap-images/img_bboxes_2019-05-24.rds"
+        )
 
+already_down <- list.files("data/source_from-nj-nearmap-website/nj-nearmap-images/",
+                           pattern = ".jpg")
+already_down <- as.numeric(gsub("\\.jpg", "", already_down))
 
-temp <- raster::brick("c:/users/wfu3/desktop/staticmap.jpg")
+to_down <- seq_along(my_grid_bbox)[!(seq_along(my_grid_bbox) %in% already_down)]
 
-for (i in seq(from = 0.005087372, to = 0.007, by = 0.00001)) {
-  cat(i)
-  print(geosphere::distGeo(
-    c(my_bbox[["xmin"]], my_bbox[["ymin"]]),
-    c(my_bbox[["xmin"]] + 0.00695052, my_bbox[["ymin"]])
-  ))
-  cat("\n")
-}
+lapply(to_down, function(i) {
+  Sys.sleep(1)
+
+  download.file(
+    url = paste0("http://us0.nearmap.com/staticmap?bbox=",
+                 my_grid_bbox[[i]],
+                 "&zoom=20&date=20190523&httpauth=false&",
+                 "apikey=NWFmY2MyY2MtNjA5YS00NWQ5LWJkMTQtZGJlNjRmZDc4NjA5"),
+    destfile = paste0("data/source_from-nj-nearmap-website/nj-nearmap-images/", i, ".jpg"),
+    mode = "wb",
+    quiet = TRUE
+  )
+})
+

@@ -13,10 +13,10 @@
 #' application_nasnetlarge  application_densenet169  application_mobilenet
 #' optimizer_adagrad  optimizer_rmsprop  optimizer_nadam  optimizer_adadelta
 #' optimizer_adam  optimizer_adamax optimizer_sgd array_reshape predict_proba
+#' image_load image_to_array
 #'
 #' @importFrom stringr str_detect str_replace
 #' @importFrom abind abind
-#' @importFrom magick image_load image_to_array
 #' @importFrom utils write.csv
 train_tower_model <- function(
   # directories

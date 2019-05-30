@@ -1,6 +1,6 @@
-Package: coolit
+Package: coolit.train
 Type: Package
-Title: Identify water cooling towers from aerial orthoimagery
+Title: Train model to identify water cooling towers from aerial orthoimagery
 Version: 0.1.0
 Imports:
     abind,

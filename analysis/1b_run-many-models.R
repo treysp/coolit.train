@@ -1,17 +1,29 @@
-library(coolit)
+library(coolit.train)
 library(tensorflow)
 library(keras)
-library(pbapply)
 library(ggplot2)
 library(stringr)
-library(ROCR)
-library(abind)
 
 #### meta-parameters -----------------------
 meta_params <- list(
   img_dir = c("slices_curated_2019-05-16"),
 
   base_model = c("vgg16"),
+
+  dense_structure = list(
+    list(
+      list(units = 256, dropout = 0.2),
+      list(units = 128, dropout = 0.2)
+    )
+    # list(
+    #   list(units = 512, dropout = 0.2)
+    # ),
+    # list(
+    #   list(units = 1024, dropout = 0.2),
+    #   list(units = 512, dropout = 0.2),
+    #   list(units = 128, dropout = 0.2)
+    #   )
+    ),
 
   small_final_layer = list(
     list(NA)
@@ -20,9 +32,9 @@ meta_params <- list(
   ),
 
   class_weights = list(
-    list(`1` = 4, `0` = 1),
-    list(`1` = 6, `0` = 1),
-    list(`1` = 8, `0` = 1)
+    #list(`1` = 4.5, `0` = 1)
+    #list(`1` = 6, `0` = 1)
+     list(`1` = 8, `0` = 1)
   )
 )
 
@@ -45,7 +57,7 @@ params <- list(
   # training image params
   img_horizontal_flip = TRUE,
   img_vertical_flip = TRUE,
-  batch_size = 32,
+  batch_size = 64,
 
   # training model params
   base_model = NULL,
@@ -56,10 +68,7 @@ params <- list(
   small_layer_size = NA,
 
   # dense model params
-  dense_structure = list(
-    list(units = 256, dropout = 0.2),
-    list(units = 128, dropout = 0.2)
-  ),
+  dense_structure = NULL,
   dense_optimizer = "rmsprop",
   dense_lr = 1e-5,
   dense_steps_per_epoch = 100,
@@ -80,7 +89,7 @@ params <- list(
   second_ft_optimizer = "rmsprop",
   second_ft_lr = 5e-6,
   second_ft_steps_per_epoch = 100,
-  second_ft_epochs = 50,
+  second_ft_epochs = 75,
   second_ft_validation_steps = 50,
 
   # class weights
@@ -94,8 +103,9 @@ for (i in seq_along(meta_params)) {
 
   params$img_dir <- curr_params[["img_dir"]]
   params$base_model <- curr_params[["base_model"]]
-  params$class_weights <- curr_params[["class_weights"]]
+  params$class_weights <- curr_params[["class_weights"]][[1]]
 
+  params$dense_structure <- curr_params[["dense_structure"]][[1]]
 
   if (!is.na(curr_params[["small_final_layer"]][[1]][[1]])) {
     params$add_small_final_layer <- TRUE

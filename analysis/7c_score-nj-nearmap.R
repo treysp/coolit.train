@@ -122,7 +122,7 @@ for (i in seq_along(all_slices_chunks)) {
 }
 
 # collate scores
-my_scores <- lapply(1:3, function(x) {
+my_scores <- lapply(1:3, function(i) {
   data.table(
     readRDS(
       paste0(

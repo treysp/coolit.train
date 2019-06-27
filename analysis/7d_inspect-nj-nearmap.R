@@ -6,22 +6,22 @@ library(coolit)
 
 # inspect scores
 my_scores <- data.table(
-  readRDS("output/2019-05-25/nj-nearmap-scores/nj-nearmap-scores-gt001.rds")
+  readRDS("output/2019-05-28/nj-nearmap-scores/nj-nearmap-scores-gt001.rds")
 )
 
 my_scores[, pred_prob4 := round(predicted_probs, 4)]
 
-my_scores98 <- my_scores[predicted_probs > .98,]
+my_scores5 <- my_scores[predicted_probs > .5,]
 
-my_scores98_list <- split(my_scores98, my_scores98$img_id)
+my_scores5_list <- split(my_scores5, my_scores5$img_id)
 
-cl <- parallel::makeCluster(20)
+cl <- parallel::makeCluster(30)
 parallel::clusterEvalQ(cl, {
   library(stringr)
   library(magick)
 })
 
-parallel::parLapplyLB(cl = cl, X = my_scores98_list, fun = function(img) {
+parallel::parLapplyLB(cl = cl, X = my_scores5_list, fun = function(img) {
   img_num <- as.numeric(
     stringr::str_match(unique(img$img_id),
                        "(.*/)*(\\d{1,4})_slices_scores\\.rds")[, 3]
@@ -39,7 +39,8 @@ parallel::parLapplyLB(cl = cl, X = my_scores98_list, fun = function(img) {
       image_read(
         drop(to_write$slice_array[[i]]) / 255
       ),
-      paste0("c:/users/wfu3/Desktop/temp_nj/", img_num, "_", to_write$slice_id[[i]], ".png")
+      paste0("c:/users/wfu3/Desktop/temp_nj_2019-05-28/",
+             img_num, "_", to_write$slice_id[[i]], ".png")
     )
   }
 })

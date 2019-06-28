@@ -471,6 +471,40 @@ train_tower_model <- function(
                    file = file.path(params$curr_model_dir, "valid-img-scores.csv"),
                    row.names = FALSE)
 
+  predicted_probs <- predicted_probs[order(predicted_probs[["pred_prob"]]), ]
+
+  total_pos <- sum(predicted_probs[["truth"]] == 1)
+  total_neg <- sum(predicted_probs[["truth"]] == 0)
+
+  confusion <- lapply(seq_len(nrow(predicted_probs) - 1), function(i) {
+    out <- data.frame(
+      split_val = predicted_probs[["pred_prob"]][i],
+      num_below_split = i,
+      num_above_split = nrow(predicted_probs) - i
+    )
+
+    below <- predicted_probs[seq(1, i), ]
+    out[["false_neg"]] <- sum(below[["truth"]] == 1)
+    out[["true_neg"]] <- sum(below[["truth"]] == 0)
+
+    above <- predicted_probs[seq(i + 1, nrow(predicted_probs)), ]
+    out[["false_pos"]] <- sum(above[["truth"]] == 0)
+    out[["true_pos"]] <- sum(above[["truth"]] == 1)
+
+    out[["sens_recall"]] <- out[["true_pos"]] / total_pos
+    out[["spec"]] <- out[["true_neg"]] / total_neg
+    out[["ppv_precision"]] <- out[["true_pos"]] / (out[["true_pos"]] + out[["false_pos"]])
+    out[["npv"]] <- out[["true_neg"]] / (out[["true_neg"]] + out[["false_neg"]])
+
+    out
+  })
+
+  confusion <- do.call("rbind", confusion)
+
+  utils::write.csv(confusion,
+                   file = file.path(params$curr_model_dir, "valid-confusion-matrix.csv"),
+                   row.names = FALSE)
+
 #### save params -------------------------------------
   sink(file = file.path(params$curr_model_dir, "run-parameters.txt"))
   print(params)

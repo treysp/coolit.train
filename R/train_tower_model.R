@@ -1,5 +1,64 @@
 #' Train tower model with keras
 #'
+#' @param img_base_dir Directory containing the `img_dir`
+#' @param img_dir Directory containing properly structured `train` and `validation` directories
+#' @param output_dir Directory where model outputs should be save
+#'
+#' @param img_size Numeric vector length 2 containing the training image size in
+#'                   pixels (order row, column)
+#' @param img_horizontal_flip Image augmentation: should images be flipped horizontally
+#'                              during training?
+#' @param img_vertical_flip Image augmentation: should images be flipped vertically
+#'                              during training?
+#' @param batch_size Training model batch size (single number).
+#' @param base_model Character containing the name of a base model available in the R `keras`
+#'                     package via an `application_[base model name]` function. For example,
+#'                     parameter value "vgg16" would call the keras `application_vgg16` function.
+#' @param save_best_model_only Should training callback save model at every epoch or only retain
+#'                               model with the best validation loss?
+#'
+#' @param add_small_final_layer
+#' @param small_layer_size
+#'
+#' @param dense_structure List of lists specifying structure of dense layers added to base model.
+#'                          See examples.
+#' @param dense_optimizer Character containing the name of an optimizer available in the R `keras`
+#'                          package via an `optimizer_[optimizer name]` function. For example,
+#'                          parameter value "rmsprop" would call the keras `optimizer_rmsprop`
+#'                          function.
+#' @param dense_lr Learning rate for dense layer training (single number).
+#' @param dense_steps_per_epoch Steps per epoch for dense layer training (single number).
+#' @param dense_epochs Number of epochs for dense layer training (single number).
+#' @param dense_validation_steps Number of validation steps for dense layer training
+#'                                 (single number).
+#'
+#' @param first_ft_unfreeze Name of the base model layer where weights should be unfrozen for
+#'                            first fine-tune training. Must be a valid layer name for the
+#'                            base model specified in the `base_model` parameter.
+#' @param first_ft_optimizer Character containing the name of an optimizer available in the R `keras`
+#'                             package via an `optimizer_[optimizer name]` function.
+#' @param first_ft_lr Learning rate for first fine-tune training (single number).
+#' @param first_ft_steps_per_epoch Steps per epoch for first fine-tune training (single number).
+#' @param first_ft_epochs Number of epochs for first fine-tune training (single number).
+#' @param first_ft_validation_steps Number of validation steps for first fine-tune training
+#'                                 (single number).
+#'
+#' @param do_second_ft
+#' @param second_ft_unfreeze Name of the base model layer where weights should be unfrozen for
+#'                             second fine-tune training. Must be a valid layer name for the
+#'                             base model specified in the `base_model` parameter.
+#' @param second_ft_optimizer Character containing the name of an optimizer available in the R `keras`
+#'                              package via an `optimizer_[optimizer name]` function.
+#' @param second_ft_lr Learning rate for second fine-tune training (single number).
+#' @param second_ft_steps_per_epoch Steps per epoch for second fine-tune training (single number).
+#' @param second_ft_epochs Number of epochs for second fine-tune training (single number).
+#' @param second_ft_validation_steps Number of validation steps for second fine-tune training
+#'                                     (single number).
+#'
+#' @param class_weights Named list with weights corresponding to outcome classes - see examples.
+#'                        Optional - default is weights inversely proportional to outcome class
+#'                        distribution in training set.
+#'
 #' @export
 #' @importFrom keras
 #' image_data_generator flow_images_from_directory

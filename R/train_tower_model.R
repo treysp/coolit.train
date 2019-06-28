@@ -1,6 +1,5 @@
 #' Train tower model with keras
 #'
-#' @param img_base_dir Directory containing the `img_dir`
 #' @param img_dir Directory containing properly structured `train` and `validation` directories
 #' @param output_dir Directory where model outputs should be save
 #'
@@ -76,8 +75,7 @@
 #' @importFrom utils write.csv
 train_tower_model <- function(
   # directories
-  img_base_dir = "data/tiles/splits",
-  img_dir = "orig",
+  img_dir = "data/tiles/splits/orig",
   output_dir = "output",
 
   # images
@@ -164,11 +162,7 @@ train_tower_model <- function(
   }
 
   # error check: source directories
-  if (!dir.exists(img_base_dir)) {
-    stop("`img_base_dir` does not exist!")
-  }
-
-  if (!dir.exists(file.path(img_base_dir, img_dir))) {
+  if (!dir.exists(img_dir)) {
     stop("`img_dir` does not exist!")
   }
 
@@ -234,8 +228,8 @@ train_tower_model <- function(
   }
 
   # create and error check directories
-  params$train_dir <- file.path(params$img_base_dir, params$img_dir, "train")
-  params$valid_dir <- file.path(params$img_base_dir, params$img_dir, "validation")
+  params$train_dir <- file.path(params$img_dir, "train")
+  params$valid_dir <- file.path(params$img_dir, "validation")
 
   if (!(dir.exists(params$train_dir) && dir.exists(params$valid_dir))) {
     stop("`img_dir` must contain 2 directories named 'train' and 'validation'")

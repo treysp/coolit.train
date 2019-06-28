@@ -39,7 +39,7 @@
 #' @param first_ft_validation_steps Number of validation steps for first fine-tune training
 #'                                 (single number).
 #'
-#' @param do_second_ft
+#' @param do_second_ft Do a second fine-tune training (TRUE or FALSE)?
 #' @param second_ft_unfreeze Name of the base model layer where weights should be unfrozen for
 #'                             second fine-tune training. Must be a valid layer name for the
 #'                             base model specified in the `base_model` parameter.

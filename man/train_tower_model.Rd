@@ -4,11 +4,10 @@
 \alias{train_tower_model}
 \title{Train tower model with keras}
 \usage{
-train_tower_model(img_base_dir = "data/tiles/splits", img_dir = "orig",
+train_tower_model(img_dir = "data/tiles/splits/orig",
   output_dir = "output", img_size = c(50, 50),
   img_horizontal_flip = TRUE, img_vertical_flip = TRUE,
   batch_size = 32, base_model = "vgg16", save_best_model_only = TRUE,
-  add_small_final_layer = FALSE, small_layer_size = NULL,
   dense_structure = list(list(units = 256, dropout = 0.2), list(units =
   128, dropout = 0.2)), dense_optimizer = "rmsprop", dense_lr = 1e-05,
   dense_steps_per_epoch = 100, dense_epochs = 30,
@@ -20,6 +19,84 @@ train_tower_model(img_base_dir = "data/tiles/splits", img_dir = "orig",
   second_ft_lr = 5e-06, second_ft_steps_per_epoch = 100,
   second_ft_epochs = 30, second_ft_validation_steps = 50,
   class_weights = NULL)
+}
+\arguments{
+\item{img_dir}{Directory containing properly structured `train` and `validation` directories}
+
+\item{output_dir}{Directory where model outputs should be save}
+
+\item{img_size}{Numeric vector length 2 containing the training image size in
+pixels (order row, column)}
+
+\item{img_horizontal_flip}{Image augmentation: should images be flipped horizontally
+during training?}
+
+\item{img_vertical_flip}{Image augmentation: should images be flipped vertically
+during training?}
+
+\item{batch_size}{Training model batch size (single number).}
+
+\item{base_model}{Character containing the name of a base model available in the R `keras`
+package via an `application_[base model name]` function. For example,
+parameter value "vgg16" would call the keras `application_vgg16` function.}
+
+\item{save_best_model_only}{Should training callback save model at every epoch or only retain
+model with the best validation loss?}
+
+\item{dense_structure}{List of lists specifying structure of dense layers added to base model.
+See examples.}
+
+\item{dense_optimizer}{Character containing the name of an optimizer available in the R `keras`
+package via an `optimizer_[optimizer name]` function. For example,
+parameter value "rmsprop" would call the keras `optimizer_rmsprop`
+function.}
+
+\item{dense_lr}{Learning rate for dense layer training (single number).}
+
+\item{dense_steps_per_epoch}{Steps per epoch for dense layer training (single number).}
+
+\item{dense_epochs}{Number of epochs for dense layer training (single number).}
+
+\item{dense_validation_steps}{Number of validation steps for dense layer training
+(single number).}
+
+\item{first_ft_unfreeze}{Name of the base model layer where weights should be unfrozen for
+first fine-tune training. Must be a valid layer name for the
+base model specified in the `base_model` parameter.}
+
+\item{first_ft_optimizer}{Character containing the name of an optimizer available in the R `keras`
+package via an `optimizer_[optimizer name]` function.}
+
+\item{first_ft_lr}{Learning rate for first fine-tune training (single number).}
+
+\item{first_ft_steps_per_epoch}{Steps per epoch for first fine-tune training (single number).}
+
+\item{first_ft_epochs}{Number of epochs for first fine-tune training (single number).}
+
+\item{first_ft_validation_steps}{Number of validation steps for first fine-tune training
+(single number).}
+
+\item{do_second_ft}{Do a second fine-tune training (TRUE or FALSE)?}
+
+\item{second_ft_unfreeze}{Name of the base model layer where weights should be unfrozen for
+second fine-tune training. Must be a valid layer name for the
+base model specified in the `base_model` parameter.}
+
+\item{second_ft_optimizer}{Character containing the name of an optimizer available in the R `keras`
+package via an `optimizer_[optimizer name]` function.}
+
+\item{second_ft_lr}{Learning rate for second fine-tune training (single number).}
+
+\item{second_ft_steps_per_epoch}{Steps per epoch for second fine-tune training (single number).}
+
+\item{second_ft_epochs}{Number of epochs for second fine-tune training (single number).}
+
+\item{second_ft_validation_steps}{Number of validation steps for second fine-tune training
+(single number).}
+
+\item{class_weights}{Named list with weights corresponding to outcome classes - see examples.
+Optional - default is weights inversely proportional to outcome class
+distribution in training set.}
 }
 \description{
 Train tower model with keras

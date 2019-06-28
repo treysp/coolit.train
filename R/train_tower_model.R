@@ -17,9 +17,6 @@
 #' @param save_best_model_only Should training callback save model at every epoch or only retain
 #'                               model with the best validation loss?
 #'
-#' @param add_small_final_layer
-#' @param small_layer_size
-#'
 #' @param dense_structure List of lists specifying structure of dense layers added to base model.
 #'                          See examples.
 #' @param dense_optimizer Character containing the name of an optimizer available in the R `keras`
@@ -94,10 +91,6 @@ train_tower_model <- function(
   # training model params
   base_model = "vgg16",
   save_best_model_only = TRUE,
-
-  # dense model structure
-  add_small_final_layer = FALSE,
-  small_layer_size = NULL,
 
   # dense model params
   dense_structure = list(
@@ -324,11 +317,6 @@ train_tower_model <- function(
       model <- model %>%
         layer_dropout(rate = params$dense_structure[[i]][["dropout"]])
     }
-  }
-
-  if (params$add_small_final_layer) {
-    model <- model %>%
-      layer_dense(units = params$small_layer_size, activation = "relu")
   }
 
   model <- model %>%

@@ -61,13 +61,13 @@
 #' keras_model_sequential layer_flatten layer_dense layer_dropout
 #' freeze_weights compile callback_model_checkpoint callback_csv_logger
 #' fit_generator unfreeze_weights callback_reduce_lr_on_plateau
-#' application_densenet  application_densenet201  application_xception
-#' application_nasnet  application_mobilenet_v2  application_inception_resnet_v2
-#' application_inception_v3  application_resnet50  application_vgg16
-#' application_vgg19  application_densenet121  application_nasnetmobile
-#' application_nasnetlarge  application_densenet169  application_mobilenet
-#' optimizer_adagrad  optimizer_rmsprop  optimizer_nadam  optimizer_adadelta
-#' optimizer_adam  optimizer_adamax optimizer_sgd array_reshape predict_proba
+#' application_densenet application_densenet201 application_xception
+#' application_nasnet application_mobilenet_v2 application_inception_resnet_v2
+#' application_inception_v3 application_resnet50 application_vgg16
+#' application_vgg19 application_densenet121 application_nasnetmobile
+#' application_nasnetlarge application_densenet169 application_mobilenet
+#' optimizer_adagrad optimizer_rmsprop optimizer_nadam optimizer_adadelta
+#' optimizer_adam optimizer_adamax optimizer_sgd array_reshape predict_proba
 #' image_load image_to_array
 #'
 #' @importFrom stringr str_detect str_replace
@@ -139,12 +139,10 @@ train_tower_model <- function(
   #### error checks --------------------------------
   # required arguments exists?
   args_null <- stats::setNames(sapply(params, is.null), names(params))
-  req_args_null <- args_null[!(names(args_null) == "small_layer_size") &
-                               !(grepl("second_ft_", names(args_null)))]
+  req_args_null <- args_null[!(grepl("second_ft_", names(args_null)))]
 
   if (any(req_args_null)) {
-    stop("All function arguments except `small_layer_size` ",
-         "and `second_ft_*` are required")
+    stop("All function arguments except `second_ft_*` are required")
   }
 
   if (params$do_second_ft) {
@@ -154,11 +152,6 @@ train_tower_model <- function(
       stop("If `do_second_ft` is TRUE, all",
            "`second_ft_*` arguments are required")
     }
-  }
-
-  if (params$add_small_final_layer && is.null(params$small_layer_size)) {
-    stop("If `add_small_final_layer` is TRUE, ",
-         "`small_layer_size` argument is required.")
   }
 
   # error check: source directories

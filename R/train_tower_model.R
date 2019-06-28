@@ -300,7 +300,8 @@ train_tower_model <- function(
       layer_dense(units = params$dense_structure[[i]][["units"]],
                   activation = "relu")
 
-    if (params$dense_structure[[i]][["dropout"]] > 0) {
+    if (("dropout" %in% names(params$dense_structure[[i]])) &&
+         params$dense_structure[[i]][["dropout"]] > 0) {
       model <- model %>%
         layer_dropout(rate = params$dense_structure[[i]][["dropout"]])
     }

@@ -483,14 +483,14 @@ train_tower_model <- function(
   valid_files <- list.files(params$valid_dir, full.names = TRUE, recursive = TRUE)
 
   img_dims <- dim(
-    magick::image_to_array(
-      magick::image_load(valid_files[1])
+    keras::image_to_array(
+      keras::image_load(valid_files[1])
       )
     )
 
   img_to_score <- lapply(valid_files, function(img) {
-    out <- magick::image_load(img)
-    out <- magick::image_to_array(out)
+    out <- keras::image_load(img)
+    out <- keras::image_to_array(out)
     out <- keras::array_reshape(out, c(1, img_dims))
     out <- out / 255
     out

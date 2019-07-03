@@ -5,3 +5,4 @@
 ^analysis$
 ^data$
 ^output$
+^cli$

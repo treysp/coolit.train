@@ -6,34 +6,22 @@ library(stringr)
 
 #### meta-parameters -----------------------
 meta_params <- list(
-  img_dir = c("slices_curated_2019-05-16"),
-
   base_model = c("vgg16"),
+
+  batch_size = c(192),
+
+  optimizer = c("adam"),
+
+  dense_lr = c(1e-5),
 
   dense_structure = list(
     list(
-      list(units = 256, dropout = 0.2),
-      list(units = 128, dropout = 0.2)
+      list(units = 512, dropout = 0.3),
+      list(units = 128, dropout = 0.3)
     )
-    # list(
-    #   list(units = 512, dropout = 0.2)
-    # ),
-    # list(
-    #   list(units = 1024, dropout = 0.2),
-    #   list(units = 512, dropout = 0.2),
-    #   list(units = 128, dropout = 0.2)
-    #   )
     ),
 
-  small_final_layer = list(
-    list(NA)
-    #list(small_layer_size = 4, dense_epochs = 60),
-    #list(small_layer_size = 8, dense_epochs = 60)
-  ),
-
   class_weights = list(
-    #list(`1` = 4.5, `0` = 1)
-    #list(`1` = 6, `0` = 1)
      list(`1` = 8, `0` = 1)
   )
 )
@@ -47,8 +35,7 @@ meta_params <- split(meta_params, seq_len(NROW(meta_params)))
 params <- list(
 
   # directories
-  img_base_dir = "data/model-training-data",
-  img_dir = NULL,
+  img_dir = "data/model-training-data/slices_curated_2019-05-16",
   output_dir = "output/multi-model-runs",
 
   # images
@@ -57,36 +44,32 @@ params <- list(
   # training image params
   img_horizontal_flip = TRUE,
   img_vertical_flip = TRUE,
-  batch_size = 64,
+  batch_size = NULL,
 
   # training model params
   base_model = NULL,
   save_best_model_only = TRUE,
 
-  # dense model structure
-  add_small_final_layer = NULL,
-  small_layer_size = NA,
-
   # dense model params
   dense_structure = NULL,
-  dense_optimizer = "rmsprop",
-  dense_lr = 1e-5,
+  dense_optimizer = NULL,
+  dense_lr = NULL,
   dense_steps_per_epoch = 100,
-  dense_epochs = 50,
+  dense_epochs = 75,
   dense_validation_steps = 50,
 
   # first fine-tune model params
   first_ft_unfreeze = "block4_conv1",
-  first_ft_optimizer = "rmsprop",
+  first_ft_optimizer = NULL,
   first_ft_lr = 1e-5,
   first_ft_steps_per_epoch = 100,
-  first_ft_epochs = 50,
+  first_ft_epochs = 75,
   first_ft_validation_steps = 50,
 
   # second fine-tune model params
-  do_second_ft = FALSE,
+  do_second_ft = TRUE,
   second_ft_unfreeze = "block3_conv1",
-  second_ft_optimizer = "rmsprop",
+  second_ft_optimizer = "adam",
   second_ft_lr = 5e-6,
   second_ft_steps_per_epoch = 100,
   second_ft_epochs = 75,
@@ -101,27 +84,24 @@ params <- list(
 for (i in seq_along(meta_params)) {
   curr_params <- meta_params[[i]]
 
-  params$img_dir <- curr_params[["img_dir"]]
+  params$batch_size <- curr_params[["batch_size"]]
   params$base_model <- curr_params[["base_model"]]
   params$class_weights <- curr_params[["class_weights"]][[1]]
 
   params$dense_structure <- curr_params[["dense_structure"]][[1]]
+  params$dense_optimizer <- curr_params[["optimizer"]]
+  params$dense_lr <- curr_params[["dense_lr"]]
 
-  if (!is.na(curr_params[["small_final_layer"]][[1]][[1]])) {
-    params$add_small_final_layer <- TRUE
-    params$small_layer_size <- curr_params[["small_final_layer"]][[1]][["small_layer_size"]]
-    params$dense_epochs <- curr_params[["small_final_layer"]][[1]][["dense_epochs"]]
-  } else {
-    params$add_small_final_layer <- FALSE
-  }
+  params$first_ft_optimizer <- curr_params[["optimizer"]]
 
   message("Current parameter set: \n",
-          "   Image = '", curr_params[["img_dir"]], "'\n",
           "   Base model = '", curr_params[["base_model"]], "'\n",
-          "   Small final layer = ", curr_params[["small_final_layer"]], "\n",
+          "   Batch size = '", curr_params[["batch_size"]], "'\n",
           "   Class weights = ",
             paste0(curr_params[["class_weights"]][[1]][[1]], ":",
-                   curr_params[["class_weights"]][[1]][[2]], "\n"))
+                   curr_params[["class_weights"]][[1]][[2]], "\n"),
+          "   Optimizer = '", curr_params[["optimizer"]], "'\n",
+          "   Dense LR = '", curr_params[["dense_lr"]], "'\n")
 
   do.call("train_tower_model", params)
 }

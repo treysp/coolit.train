@@ -1,21 +1,21 @@
 library(keras)
 library(raster)
-library(coolit)
+library(coolit.train)
 library(parallel)
 library(sf)
 library(data.table)
 
 # score slices
 scores <- score_slice_data_dir(
-  slice_data_dir = "F:/wfu3/coolit/output/2019-04-18/sliced_philly",
-  model_params_dput_file = "output/multi-model-runs/2019-03-04/models/2019-03-04_20-49-33/run-parameters_dput.txt",
-  model_h5_weights = "output/multi-model-runs/2019-03-04/models/2019-03-04_20-49-33/model_fine-tune-2.h5",
-  score_outdir = "F:/wfu3/coolit/output/2019-04-18/scored_philly",
+  slice_data_dir = "F:/wfu3/coolit.train/data/curated-training-slices/philly/philly-slices",
+  model_params_dput_file = "output/multi-model-runs/2019-07-02/models/2019-07-02_11-08-43/run-parameters_dput.txt",
+  model_h5_weights = "output/multi-model-runs/2019-07-02/models/2019-07-02_11-08-43/model_fine-tune-2.h5",
+  score_outdir = "F:/wfu3/coolit.train/output/2019-07-02/scored_philly",
   return_score = FALSE
 )
 
 # collate scores
-my_scores_files <- list.files("f:/wfu3/coolit/output/2019-04-18/scored_philly/",
+my_scores_files <- list.files("f:/wfu3/coolit/output/2019-07-02/scored_philly/",
                               full.names = TRUE)
 
 my_scores_id <- rep(seq(1, detectCores() - 1),

@@ -51,8 +51,8 @@ score_jp2_image <- function(model_params, scoring_model,
   tile_data <- slice_jp2_image(
     jp2_path = jp2_path,
     jp2_aux_path = jp2_aux_path,
-    tile_n_rows = model_params$img_size[1],
-    tile_n_cols = model_params$img_size[2],
+    slice_n_rows = model_params$img_size[1],
+    slice_n_cols = model_params$img_size[2],
     tile_overlap = tile_overlap,
     complete_image = complete_image,
     verbose = verbose

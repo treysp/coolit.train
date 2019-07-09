@@ -49,7 +49,7 @@ params <- list(
   first_ft_validation_steps = 50,
 
   # second fine-tune model params
-  do_second_ft = TRUE,
+  do_second_ft = FALSE,
   second_ft_unfreeze = "block3_conv1",
   second_ft_optimizer = "rmsprop",
   second_ft_lr = 5e-6,
@@ -58,15 +58,10 @@ params <- list(
   second_ft_validation_steps = 50,
 
   class_weights = list(
-      `1` = 40,
+      `1` = 10,
       `0` = 1
     )
 )
-
-params$class_weights <- list(
-  `1` = (params$num_train_tower + params$num_train_notower) / params$num_train_tower,
-  `0` = (params$num_train_tower + params$num_train_notower) / params$num_train_notower
-  )
 
 #### setup --------------------------------
 if (params$do_second_ft) {
@@ -423,6 +418,41 @@ predicted_probs[["truth"]] <- as.numeric(!stringr::str_detect(valid_files, "noto
 write.csv(predicted_probs,
           file = file.path(params$curr_model_dir, "predicted-probs.csv"),
           row.names = FALSE)
+
+predicted_probs <- predicted_probs[order(predicted_probs[["pred_prob"]]), ]
+
+total_pos <- sum(predicted_probs[["truth"]] == 1)
+total_neg <- sum(predicted_probs[["truth"]] == 0)
+
+confusion <- lapply(seq_len(nrow(predicted_probs) - 1), function(i) {
+  out <- data.frame(
+    split_val = predicted_probs[["pred_prob"]][i],
+    num_below_split = i,
+    num_above_split = nrow(predicted_probs) - i
+    )
+
+  below <- predicted_probs[seq(1, i), ]
+  out[["false_neg"]] <- sum(below[["truth"]] == 1)
+  out[["true_neg"]] <- sum(below[["truth"]] == 0)
+
+  above <- predicted_probs[seq(i + 1, nrow(predicted_probs)), ]
+  out[["false_pos"]] <- sum(above[["truth"]] == 0)
+  out[["true_pos"]] <- sum(above[["truth"]] == 1)
+
+  out[["sens_recall"]] <- out[["true_pos"]] / total_pos
+  out[["spec"]] <- out[["true_neg"]] / total_neg
+  out[["ppv_precision"]] <- out[["true_pos"]] / (out[["true_pos"]] + out[["false_pos"]])
+  out[["npv"]] <- out[["true_neg"]] / (out[["true_neg"]] + out[["false_neg"]])
+
+  out
+})
+
+confusion <- do.call("rbind", confusion)
+
+utils::write.csv(confusion,
+                 file = file.path(params$curr_model_dir, "valid-confusion-matrix.csv"),
+                 row.names = FALSE)
+
 
 #### examine scored test images ----------------------------
 predicted_probs <- read.csv(file.path(params$curr_model_dir, "predicted-probs.csv"),

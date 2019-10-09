@@ -51,7 +51,7 @@ lapply(to_down, function(i) {
     url = paste0("http://us0.nearmap.com/staticmap?bbox=",
                  my_grid_bbox[[i]],
                  "&zoom=20&date=20190523&httpauth=false&",
-                 "apikey=NWFmY2MyY2MtNjA5YS00NWQ5LWJkMTQtZGJlNjRmZDc4NjA5"),
+                 "apikey=MYAPIKEY"),
     destfile = paste0("data/source_from-nj-nearmap-website/nj-nearmap-images/", i, ".jpg"),
     mode = "wb",
     quiet = TRUE
